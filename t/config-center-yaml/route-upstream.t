@@ -21,19 +21,12 @@ log_level('info');
 no_root_location();
 no_shuffle();
 
-sub read_file($) {
-    my $infile = shift;
-    open my $in, $infile
-        or die "cannot open $infile for reading: $!";
-    my $cert = do { local $/; <$in> };
-    close $in;
-    $cert;
-}
-
-our $yaml_config = read_file("conf/config.yaml");
-$yaml_config =~ s/node_listen: 9080/node_listen: 1984/;
-$yaml_config =~ s/config_center: etcd/config_center: yaml/;
-$yaml_config =~ s/enable_admin: true/enable_admin: false/;
+our $yaml_config = <<_EOC_;
+apisix:
+    node_listen: 1984
+    config_center: yaml
+    enable_admin: false
+_EOC_
 
 run_tests();
 
@@ -44,6 +37,7 @@ __DATA__
 --- apisix_yaml
 routes:
     -
+        id: 1
         uri: /hello
         upstream_id: 1
 upstreams:
@@ -67,6 +61,7 @@ hello world
 --- apisix_yaml
 routes:
     -
+        id: 1
         uri: /hello
         upstream_id: 1111
 upstreams:
@@ -89,6 +84,7 @@ failed to find upstream by id: 1111
 --- apisix_yaml
 routes:
     -
+        id: 1
         uri: /hello
         upstream_id: 1
         upstream:
@@ -116,6 +112,7 @@ hello world
 --- apisix_yaml
 routes:
     -
+        id: 1
         uri: /hello
         upstream_id: 1
 upstreams:
@@ -146,6 +143,7 @@ hello world
 --- apisix_yaml
 routes:
     -
+        id: 1
         uri: /get
         upstream_id: 1
 upstreams:
